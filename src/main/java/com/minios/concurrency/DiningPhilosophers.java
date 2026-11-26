@@ -85,16 +85,18 @@ public final class DiningPhilosophers {
             }
             Thread.sleep(20);
         }
+        // Snapshot the meal counts BEFORE interrupting. Interrupting makes the philosophers
+        // put their forks down, which lets a neighbour finish one last meal; that would
+        // misreport a deadlocked table as having eaten.
+        int[] eaten = new int[n];
+        for (int i = 0; i < n; i++) {
+            eaten[i] = meals.get(i);
+        }
         for (Thread t : threads) {
             t.interrupt();
         }
         for (Thread t : threads) {
             t.join(1000);
-        }
-
-        int[] eaten = new int[n];
-        for (int i = 0; i < n; i++) {
-            eaten[i] = meals.get(i);
         }
         long millis = (System.nanoTime() - start) / 1_000_000;
         return new Report(strategy, n, deadlocked, eaten, millis);
